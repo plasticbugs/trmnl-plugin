@@ -1,15 +1,17 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
-import { NextResponse } from 'next/server'
+import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs'
 
-export async function GET(request) {
-  const requestUrl = new URL(request.url)
-  const code = requestUrl.searchParams.get('code')
-
-  if (code) {
-    const supabase = createRouteHandlerClient({ cookies })
-    await supabase.auth.exchangeCodeForSession(code)
+export default async function handler(req, res) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  return NextResponse.redirect(requestUrl.origin)
+  const code = req.query.code;
+
+  if (code) {
+    const supabase = createServerSupabaseClient({ req, res });
+    await supabase.auth.exchangeCodeForSession(code);
+  }
+
+  // Redirect back to the origin
+  res.redirect('/');
 } 
