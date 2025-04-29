@@ -5,7 +5,6 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Verify the authorization header
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Unauthorized' });
@@ -18,7 +17,6 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing user_uuid' });
     }
 
-    // Delete all settings for this user
     const { error: deleteError } = await supabase
       .from('plugin_settings')
       .delete()
@@ -28,9 +26,6 @@ export default async function handler(req, res) {
       console.error('Error deleting user data:', deleteError);
       throw deleteError;
     }
-
-    // Log the uninstallation (optional, for debugging)
-    console.log(`Plugin uninstalled for user: ${user_uuid}`);
 
     return res.status(200).json({ 
       success: true, 
